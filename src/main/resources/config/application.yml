@@ -1,7 +1,7 @@
 # Set server configuration
 server:
   servlet:
-    context-path: /api
+    context-path: /api/v1
   port: 8080
 
 # MySQL datasource configuration
