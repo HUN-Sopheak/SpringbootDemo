@@ -1,7 +1,11 @@
 package com.api.demo.book;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import io.micrometer.core.ipc.http.HttpSender.Response;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +33,27 @@ public class BookService implements BookServiceImpl{
     }
 
     @Override
-    public void deleteBook(Long id) {
-        bookRepo.deleteById(id);
+    public ResponseEntity<String> deleteBook(Book book) {
+        Optional<Book> existingBookId = bookRepo.findById(book.getId());
+        if(existingBookId.isPresent()){
+            Book existinBook = existingBookId.get();
+            bookRepo.deleteById(existinBook.getId());
+            return ResponseEntity.ok("success");
+        }
+        return ResponseEntity.badRequest().body("Book not found");
+    }
+
+    @Override
+    public Book updateBook(Book book){
+        Optional<Book> existingBookId = bookRepo.findById(book.getId());
+        if(existingBookId.isPresent()){
+            Book existingBook = existingBookId.get();
+            existingBook.setAuthor(book.getAuthor());
+            existingBook.setDescription(book.getDescription());
+            existingBook.setTitle(book.getTitle());
+            return bookRepo.save(existingBook);
+        }else{
+            throw new IllegalArgumentException("Book with id " + book.getId() + " not found");
+        }
     }
 }
